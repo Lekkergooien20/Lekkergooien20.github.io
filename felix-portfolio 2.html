@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Felix's Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000000;
+    --fg:#ffffff;
+    --muted:#8a8a8a;
+    --line:rgba(255,255,255,0.22);
+    --line-strong:rgba(255,255,255,0.55);
+    --accent:#e3a857;
+    --card-bg:rgba(255,255,255,0.02);
+    --violet:#7c3aed;
+    --violet-deep:#4c1d95;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:'Manrope', sans-serif;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  ::selection{background:var(--accent); color:#000;}
+
+  /* ---------- SPACE / BLACK HOLE BACKGROUND ---------- */
+  .bg-gif{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background-image:url('blackhole.gif');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+  }
+
+  .bg-overlay{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 35%, rgba(0,0,0,0.55) 100%);
+  }
+
+  .vignette{
+    position:fixed;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.72) 100%);
+  }
+
+  nav, section, footer{
+    position:relative;
+    z-index:1;
+  }
+
+  /* ---------- OUTER FRAME GLOW ---------- */
+  .frame-glow{
+    position:fixed;
+    inset:8px;
+    z-index:3;
+    pointer-events:none;
+    border:1px solid rgba(255,255,255,0.35);
+    border-radius:16px;
+    animation:framePulse 7s ease-in-out infinite;
+  }
+
+  @keyframes framePulse{
+    0%, 100%{box-shadow:inset 0 0 50px 6px rgba(124,58,237,0.22), 0 0 22px 3px rgba(124,58,237,0.18);}
+    50%{box-shadow:inset 0 0 70px 12px rgba(124,58,237,0.4), 0 0 38px 6px rgba(124,58,237,0.35);}
+  }
+
+  /* ---------- CURSOR TRAIL ---------- */
+  #cursor-trail{
+    position:fixed;
+    inset:0;
+    z-index:40;
+    pointer-events:none;
+  }
+
+  @media (hover:none){
+    #cursor-trail{display:none;}
+  }
+
+  /* ---------- TINY COMPANION ---------- */
+  .companion{
+    position:fixed;
+    left:22px;
+    bottom:22px;
+    z-index:45;
+    pointer-events:none;
+  }
+
+  .companion-face{
+    width:46px;
+    height:26px;
+    background:#0a0a0a;
+    border:1px solid rgba(255,255,255,0.3);
+    border-radius:14px;
+    box-shadow:0 0 14px rgba(124,58,237,0.35);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+
+  .companion-face .eye{
+    width:9px;
+    height:9px;
+    background:#fff;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform .35s ease;
+    animation:blink 5.5s ease-in-out infinite;
+  }
+
+  .companion-face .eye.right{animation-delay:0.15s;}
+
+  .companion-face .pupil{
+    width:4px;
+    height:4px;
+    background:#0a0a0a;
+    border-radius:50%;
+    transition:transform .35s ease;
+  }
+
+  .companion.look-left .pupil{transform:translateX(-1.5px);}
+  .companion.look-right .pupil{transform:translateX(1.5px);}
+
+  @keyframes blink{
+    0%, 92%, 100%{transform:scaleY(1);}
+    96%{transform:scaleY(0.1);}
+  }
+
+  .companion-bubble{
+    position:absolute;
+    bottom:38px;
+    left:0;
+    min-width:150px;
+    max-width:210px;
+    background:rgba(10,10,10,0.92);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:8px 12px;
+    font-family:'Manrope', sans-serif;
+    font-size:0.78rem;
+    color:#e8e8e8;
+    opacity:0;
+    transform:translateY(6px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+
+  .companion-bubble.show{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  @media (max-width:640px){
+    .companion{display:none;}
+  }
+
+  /* ---------- MUSIC TOGGLE ---------- */
+  .music-toggle{
+    position:fixed;
+    bottom:22px;
+    right:22px;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    border:1px solid var(--line);
+    border-radius:100px;
+    padding:10px 16px;
+    background:rgba(0,0,0,0.55);
+    backdrop-filter:blur(6px);
+    color:var(--fg);
+    font-family:'Space Grotesk', sans-serif;
+    font-size:0.82rem;
+    cursor:pointer;
+    transition:border-color .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .music-toggle:hover{
+    border-color:var(--line-strong);
+    transform:translateY(-3px) rotate(-1deg);
+  }
+
+  .music-toggle .bars{
+    display:flex;
+    align-items:flex-end;
+    gap:2px;
+    height:12px;
+  }
+
+  .music-toggle .bars span{
+    width:2px;
+    background:var(--violet);
+    border-radius:1px;
+    height:4px;
+    transition:height .2s ease;
+  }
+
+  .music-toggle.playing .bars span{
+    animation:barBounce 0.9s ease-in-out infinite;
+  }
+
+  .music-toggle .bars span:nth-child(1){animation-delay:0s;}
+  .music-toggle .bars span:nth-child(2){animation-delay:0.15s;}
+  .music-toggle .bars span:nth-child(3){animation-delay:0.3s;}
+
+  @keyframes barBounce{
+    0%, 100%{height:4px;}
+    50%{height:12px;}
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(18px, 4vw, 48px);
+    padding:22px 24px;
+    background:linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(0,0,0,0));
+    backdrop-filter:blur(2px);
+  }
+
+  nav a{
+    color:var(--muted);
+    text-decoration:none;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:0.92rem;
+    font-weight:500;
+    letter-spacing:0.01em;
+    position:relative;
+    padding:4px 2px;
+    transition:color .35s ease, transform .35s ease;
+    white-space:nowrap;
+  }
+
+  nav a::after{
+    content:'';
+    position:absolute;
+    left:0; bottom:-2px;
+    width:100%; height:1px;
+    background:var(--fg);
+    transform:scaleX(0);
+    transform-origin:center;
+    transition:transform .35s ease;
+  }
+
+  nav a:hover{color:var(--fg); transform:translateY(-1px) rotate(-1deg);}
+  nav a:hover::after{transform:scaleX(1);}
+
+  nav a.home-link{
+    color:var(--fg);
+    font-weight:700;
+    font-size:1.05rem;
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section{
+    min-height:100vh;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:140px 24px 100px;
+    text-align:center;
+    position:relative;
+  }
+
+  .reveal{
+    opacity:0;
+    transform:translateY(26px) rotate(-1deg);
+    transition:opacity .8s ease, transform 1s cubic-bezier(.34,1.56,.64,1);
+  }
+  .reveal.in{
+    opacity:1;
+    transform:translateY(0) rotate(0deg);
+  }
+
+  .eyebrow-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:clamp(1.6rem, 4vw, 2.6rem);
+    letter-spacing:0.01em;
+    margin-bottom:8px;
+  }
+
+  .divider{
+    width:44px; height:2px;
+    background:var(--fg);
+    margin:18px auto 34px;
+    opacity:0.5;
+  }
+
+  .body-text{
+    max-width:640px;
+    font-size:1.02rem;
+    line-height:1.75;
+    color:#d6d6d6;
+    text-align:left;
+    margin:0 auto;
+  }
+
+  .body-text + .body-text{margin-top:18px;}
+
+  /* ---------- HOME ---------- */
+  #home{
+    padding-top:0;
+    justify-content:center;
+  }
+
+  .hero-name{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:clamp(2.6rem, 9vw, 6.2rem);
+    letter-spacing:-0.01em;
+    line-height:1.05;
+    display:inline-block;
+    animation:heroWobble 8s ease-in-out infinite;
+    text-shadow:0 0 40px rgba(124,58,237,0.35);
+  }
+
+  @keyframes heroWobble{
+    0%, 100%{transform:translateY(0) rotate(0deg);}
+    25%{transform:translateY(-5px) rotate(-0.5deg);}
+    50%{transform:translateY(2px) rotate(0.4deg);}
+    75%{transform:translateY(-3px) rotate(-0.3deg);}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-name{animation:none;}
+  }
+
+  .hero-sub{
+    margin-top:20px;
+    color:var(--muted);
+    font-size:1rem;
+    max-width:480px;
+  }
+
+  .type-cursor{
+    display:inline-block;
+    width:2px;
+    margin-left:2px;
+    color:var(--violet);
+    animation:cursorBlink 0.9s steps(1) infinite;
+  }
+
+  @keyframes cursorBlink{
+    0%, 50%{opacity:1;}
+    51%, 100%{opacity:0;}
+  }
+
+  .scroll-hint{
+    position:absolute;
+    bottom:48px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:0.8rem;
+    color:var(--muted);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+
+  .scroll-hint .bar{
+    width:1px; height:34px;
+    background:linear-gradient(var(--fg), transparent);
+    animation:pulseDown 2.2s ease-in-out infinite;
+  }
+
+  @keyframes pulseDown{
+    0%{transform:scaleY(0.4); opacity:0.3;}
+    50%{transform:scaleY(1); opacity:1;}
+    100%{transform:scaleY(0.4); opacity:0.3;}
+  }
+
+  /* ---------- CARD / SHOT GRID ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
+    gap:20px;
+    max-width:900px;
+    width:100%;
+    margin-top:38px;
+  }
+
+  .card{
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:var(--card-bg);
+    padding:22px 20px;
+    text-align:left;
+    transition:transform .4s cubic-bezier(.34,1.56,.64,1), border-color .3s ease, background .3s ease;
+  }
+
+  .card:hover{
+    border-color:var(--line-strong);
+    transform:translateY(-5px) rotate(-0.6deg);
+    background:rgba(255,255,255,0.045);
+  }
+
+  .card:nth-child(even):hover{
+    transform:translateY(-5px) rotate(0.6deg);
+  }
+
+  .card h4{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:1.02rem;
+    font-weight:600;
+    margin-bottom:6px;
+  }
+
+  .card p{
+    color:var(--muted);
+    font-size:0.9rem;
+    line-height:1.55;
+  }
+
+  .card .stat{
+    display:inline-block;
+    margin-top:12px;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:0.82rem;
+    color:var(--accent);
+    border:1px solid rgba(227,168,87,0.4);
+    border-radius:100px;
+    padding:3px 11px;
+  }
+
+  /* ---------- SKILL PILLS ---------- */
+  .pill-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    margin-top:26px;
+  }
+
+  .pill{
+    border:1px solid var(--line);
+    border-radius:100px;
+    padding:8px 18px;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:0.85rem;
+    font-weight:500;
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1), border-color .3s ease, background .3s ease;
+  }
+
+  .pill:hover{
+    border-color:var(--fg);
+    transform:translateY(-3px) rotate(-2deg) scale(1.04);
+    background:rgba(255,255,255,0.05);
+  }
+
+  /* ---------- SOCIAL / LINK BUTTONS ---------- */
+  .link-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    justify-content:center;
+    margin-top:30px;
+  }
+
+  .link-btn{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px 20px;
+    text-decoration:none;
+    color:var(--fg);
+    font-family:'Space Grotesk', sans-serif;
+    font-size:0.9rem;
+    font-weight:500;
+    transition:transform .4s cubic-bezier(.34,1.56,.64,1), border-color .3s ease, background .3s ease;
+  }
+
+  .link-btn:hover{
+    border-color:var(--fg);
+    transform:translateY(-4px) rotate(-1.2deg);
+    background:rgba(255,255,255,0.05);
+  }
+
+  .link-btn:nth-child(3n+1):hover{transform:translateY(-4px) rotate(1.2deg);}
+
+  .link-static{
+    cursor:default;
+    color:var(--muted);
+  }
+
+  .link-static:hover{
+    transform:none;
+    border-color:var(--line);
+    background:transparent;
+  }
+
+  .dot{
+    width:7px; height:7px;
+    border-radius:50%;
+    background:var(--muted);
+    flex-shrink:0;
+  }
+
+  .tag-line{
+    margin-top:36px;
+    color:var(--muted);
+    font-size:0.88rem;
+  }
+
+  .tag-line b{color:var(--fg); font-weight:600;}
+
+  footer{
+    text-align:center;
+    padding:40px 24px 60px;
+    color:var(--muted);
+    font-size:0.78rem;
+  }
+
+  @media (max-width:640px){
+    nav{
+      flex-wrap:wrap;
+      row-gap:10px;
+      column-gap:16px;
+      padding:14px 16px 12px;
+    }
+    nav a{font-size:0.74rem;}
+    nav a.home-link{
+      font-size:0.88rem;
+      order:-1;
+      flex-basis:100%;
+      text-align:center;
+      margin-bottom:2px;
+    }
+    .hero-name{font-size:clamp(2.1rem, 12vw, 4rem);}
+    .hero-sub{font-size:0.9rem; padding:0 8px;}
+    section{padding:170px 18px 80px;}
+    #home{padding-top:0;}
+    .body-text{text-align:left;}
+    .music-toggle{padding:9px 13px; font-size:0.76rem; bottom:16px; right:16px;}
+    .frame-glow{inset:5px; border-radius:12px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+    .reveal{opacity:1; transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-gif"></div>
+<div class="bg-overlay"></div>
+<div class="vignette"></div>
+<div class="frame-glow"></div>
+<canvas id="cursor-trail"></canvas>
+
+<div class="companion" id="companion">
+  <div class="companion-bubble" id="companionBubble"></div>
+  <div class="companion-face">
+    <div class="eye left"><div class="pupil"></div></div>
+    <div class="eye right"><div class="pupil"></div></div>
+  </div>
+</div>
+
+<button class="music-toggle" id="musicToggle" type="button" aria-label="Play background music">
+  <span class="bars"><span></span><span></span><span></span></span>
+  <span id="musicLabel">Play music</span>
+</button>
+
+<iframe id="scPlayer" width="2" height="2" style="position:fixed; bottom:0; right:0; opacity:0; pointer-events:none;" scrolling="no" frameborder="no" allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Ftitan-dnb%2Ftitan&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false">
+</iframe>
+
+<nav>
+  <a href="#real-life">Real life</a>
+  <a href="#roblox">Roblox</a>
+  <a href="#home" class="home-link">Home</a>
+  <a href="#minecraft">Minecraft</a>
+  <a href="#experience">Experience</a>
+  <a href="#social">Social media</a>
+</nav>
+
+<!-- HOME -->
+<section id="home">
+  <div class="hero-name reveal in">Felix's Portfolio</div>
+  <p class="hero-sub reveal in" id="heroSub"></p>
+  <div class="scroll-hint"><span class="bar"></span>scroll</div>
+</section>
+
+<!-- REAL LIFE -->
+<section id="real-life">
+  <div class="eyebrow-title reveal">Real life</div>
+  <div class="divider reveal"></div>
+  <div class="body-text reveal">
+    <p>I'm an 18-year-old guy who splits his time pretty evenly between gaming and being outside. I've got school and work to juggle too, and somehow still make time for way too many hobbies.</p>
+    <p>My interests are all over the place: gaming, programming, music production, and being professionally lazy. I've been online since I was 13, and I've been a furry since around that same age too.</p>
+    <p>I'm bisexual, I love editing videos, and honestly nothing beats chilling outside with friends or just people-watching. I currently make around €1,400 a month between work and school.</p>
+  </div>
+</section>
+
+<!-- ROBLOX -->
+<section id="roblox">
+  <div class="eyebrow-title reveal">Roblox</div>
+  <div class="divider reveal"></div>
+  <div class="body-text reveal">
+    <p>I started playing Roblox when I was 8, on my dad's old computer, then moved onto my own PC around 2020 and stuck with it all the way through to 2025. I started coding in Lua at 12, and spent years building on Roblox Studio.</p>
+    <p>Sadly, I ended up terminated by Roblox's AI moderation over what I believe was a mistake, and wasn't able to appeal my way out of it, so that chapter's closed for now. But over the years I racked up more than 10 million total visits across my games and over 500K Robux, some through DevEx and the rest spent on items, games, and donations. I met a lot of great people and made real friends through creating and playing.</p>
+  </div>
+  <div class="grid">
+    <div class="card reveal">
+      <h4>Forsaken Juke Practice</h4>
+      <p>Owned. Practice game built around Forsaken's mechanics.</p>
+      <span class="stat">700K+ visits</span>
+    </div>
+    <div class="card reveal">
+      <h4>Pandi Practice</h4>
+      <p>Owned. Practice-focused game for the Pandi community.</p>
+      <span class="stat">150K visits</span>
+    </div>
+    <div class="card reveal">
+      <h4>Walk for 40 Minutes</h4>
+      <p>Owned. Simple concept game that took off more than expected.</p>
+      <span class="stat">400K visits</span>
+    </div>
+    <div class="card reveal">
+      <h4>Golden's Difficulty Chart Obby</h4>
+      <p>Worked on this one, not the owner. Still running strong today.</p>
+      <span class="stat">4M visits while I was on it, 20M+ today</span>
+    </div>
+    <div class="card reveal">
+      <h4>Moonlight's Difficulty Chart Obby</h4>
+      <p>Worked on this one, not the owner. Since taken down.</p>
+      <span class="stat">5M visits</span>
+    </div>
+  </div>
+</section>
+
+<!-- MINECRAFT -->
+<section id="minecraft">
+  <div class="eyebrow-title reveal">Minecraft</div>
+  <div class="divider reveal"></div>
+  <div class="body-text reveal">
+    <p>I've been playing Minecraft since I was 6, started on my mom's phone, and now I run it on my own PC. More recently I picked up Java and C++, and I've built a few Minecraft servers as tests.</p>
+    <p>A couple of them ended up going semi-viral, pulling in a few thousand visits and hundreds of players. Nothing major happening on the Minecraft side right now, but it's always in the back of my mind.</p>
+  </div>
+  <div class="grid">
+    <div class="card reveal">
+      <h4>Username</h4>
+      <p>My in-game name</p>
+      <span class="stat">FXO8</span>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="eyebrow-title reveal">Experience</div>
+  <div class="divider reveal"></div>
+  <div class="body-text reveal">
+    <p>A rundown of what I can actually do, picked up mostly through doing it rather than any formal training.</p>
+  </div>
+  <div class="pill-row">
+    <span class="pill reveal">Lua (Roblox Studio)</span>
+    <span class="pill reveal">Java</span>
+    <span class="pill reveal">C++</span>
+    <span class="pill reveal">Video editing</span>
+    <span class="pill reveal">Music production</span>
+    <span class="pill reveal">Thumbnail design</span>
+    <span class="pill reveal">Discord server management</span>
+  </div>
+</section>
+
+<!-- SOCIAL -->
+<section id="social">
+  <div class="eyebrow-title reveal">Social media</div>
+  <div class="divider reveal"></div>
+  <div class="body-text reveal">
+    <p>You can find me under a few names: 420, Dj, or @lekkergooien20. Lekkergooien is where I post on YouTube, TikTok, and SoundCloud, and 420.dj is my Instagram.</p>
+    <p>I don't post that often, but when I do it's usually something rare I found in a game, something funny, or a random clip from playing with friends or just real life.</p>
+  </div>
+
+  <div class="link-row reveal">
+    <div class="link-btn link-static"><span class="dot"></span>Discord: lekkergooien20</div>
+    <a class="link-btn" href="https://youtube.com/@lekkergooien20" target="_blank" rel="noopener"><span class="dot"></span>YouTube</a>
+    <a class="link-btn" href="https://tiktok.com/@lekkergooien20" target="_blank" rel="noopener"><span class="dot"></span>TikTok</a>
+    <a class="link-btn" href="https://soundcloud.com/lekkergooien20" target="_blank" rel="noopener"><span class="dot"></span>SoundCloud</a>
+    <a class="link-btn" href="https://instagram.com/420.dj" target="_blank" rel="noopener"><span class="dot"></span>Instagram</a>
+  </div>
+
+  <p class="tag-line reveal">Roblox accounts: <b>420_X3</b> and <b>420_B3</b></p>
+</section>
+
+<footer>Felix's Portfolio · built with too much free time</footer>
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // stagger cards/pills within the same section slightly
+  document.querySelectorAll('.grid, .pill-row, .link-row').forEach(group => {
+    const children = group.querySelectorAll('.reveal');
+    children.forEach((child, i) => {
+      child.style.transitionDelay = (i * 70) + 'ms';
+    });
+  });
+
+  // ---------- background music toggle (SoundCloud) ----------
+  (function(){
+    const btn = document.getElementById('musicToggle');
+    const label = document.getElementById('musicLabel');
+    const iframe = document.getElementById('scPlayer');
+    const trackUrl = 'https://soundcloud.com/titan-dnb/titan';
+    if(!btn) return;
+
+    // If SoundCloud's script got blocked (ad blockers/shields sometimes do this),
+    // fall back to just opening the track in a new tab instead of doing nothing.
+    if(!window.SC || !iframe){
+      btn.addEventListener('click', function(){
+        window.open(trackUrl, '_blank', 'noopener');
+      });
+      return;
+    }
+
+    const widget = SC.Widget(iframe);
+    let ready = false;
+    let playing = false;
+
+    widget.bind(SC.Widget.Events.READY, function(){
+      ready = true;
+    });
+
+    btn.addEventListener('click', function(){
+      if(!ready){
+        // widget script loaded but never became ready (also often a blocker) — fallback
+        window.open(trackUrl, '_blank', 'noopener');
+        return;
+      }
+      if(playing){
+        widget.pause();
+        playing = false;
+      } else {
+        widget.play();
+        playing = true;
+      }
+      btn.classList.toggle('playing', playing);
+      label.textContent = playing ? 'Pause music' : 'Play music';
+    });
+  })();
+
+  // ---------- hero subtitle typewriter ----------
+  (function(){
+    const el = document.getElementById('heroSub');
+    if(!el) return;
+    const text = "Roblox Lua dev, Minecraft tinkerer, music producer, and professionally lazy human. Scroll down to see what I've been up to.";
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if(reduceMotion){
+      el.textContent = text;
+      return;
+    }
+
+    const cursor = document.createElement('span');
+    cursor.className = 'type-cursor';
+    let i = 0;
+
+    function type(){
+      el.textContent = text.slice(0, i);
+      el.appendChild(cursor);
+      i++;
+      if(i <= text.length){
+        setTimeout(type, 22);
+      } else {
+        setTimeout(() => cursor.remove(), 2200);
+      }
+    }
+    setTimeout(type, 500);
+  })();
+
+  // ---------- purple cursor trail ----------
+  (function(){
+    const canvas = document.getElementById('cursor-trail');
+    if(!canvas || window.matchMedia('(hover:none)').matches) return;
+    const ctx = canvas.getContext('2d');
+    let w, h;
+    function resize(){ w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    let mx = w / 2, my = h / 2;
+    let active = false;
+    window.addEventListener('mousemove', (e) => {
+      mx = e.clientX; my = e.clientY;
+      active = true;
+    });
+
+    function loop(){
+      ctx.fillStyle = 'rgba(0,0,0,0.09)';
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'source-over';
+
+      if(active){
+        const grad = ctx.createRadialGradient(mx, my, 0, mx, my, 16);
+        grad.addColorStop(0, 'rgba(196,150,255,0.55)');
+        grad.addColorStop(1, 'rgba(124,58,237,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(mx, my, 16, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(loop);
+    }
+    loop();
+  })();
+
+  // ---------- tiny companion ----------
+  (function(){
+    const companion = document.getElementById('companion');
+    const bubble = document.getElementById('companionBubble');
+    if(!companion || !bubble) return;
+
+    const messages = [
+      "Did you know Felix is fluffy?",
+      "Fun fact: this site was made at 11 in the morning.",
+      "Psst. Scroll down, there's more.",
+      "&^@*#^@#&$@#",
+      () => `Your current time is ${new Date().toLocaleTimeString()}`
+    ];
+
+    function lookAround(){
+      const dirs = ['look-left', 'look-right', ''];
+      const dir = dirs[Math.floor(Math.random() * dirs.length)];
+      companion.classList.remove('look-left', 'look-right');
+      if(dir) companion.classList.add(dir);
+      setTimeout(lookAround, 2500 + Math.random() * 3000);
+    }
+
+    function showBubble(){
+      const pick = messages[Math.floor(Math.random() * messages.length)];
+      bubble.textContent = typeof pick === 'function' ? pick() : pick;
+      bubble.classList.add('show');
+      setTimeout(() => bubble.classList.remove('show'), 4500);
+      setTimeout(showBubble, 22000 + Math.random() * 15000);
+    }
+
+    lookAround();
+    setTimeout(showBubble, 6000);
+  })();
+</script>
+
+</body>
+</html>
